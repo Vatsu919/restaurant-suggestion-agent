@@ -12,6 +12,7 @@ import com.anthropic.models.messages.StructuredMessageCreateParams;
 
 import org.example.restaurantsuggestionagent.agent.SkippedRestaurant;
 import org.example.restaurantsuggestionagent.llm.LlmException;
+import org.example.restaurantsuggestionagent.query.Preferences;
 import org.example.restaurantsuggestionagent.query.TripQuery;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -73,8 +74,8 @@ public class ClaudeAnswerWriter implements AnswerWriter {
                 .append(query.neighbourhood().isEmpty() ? "" : " (" + query.neighbourhood() + ")").append('\n')
                 .append("Diet: ").append(query.diet()).append(" (").append(query.strictness()).append(")\n")
                 .append("Meals: ").append(query.meals()).append('\n')
-                .append("Dishes or cuisines the user likes: ").append(query.cuisinePreferences().isEmpty()
-                        ? "none given" : String.join(", ", query.cuisinePreferences())).append('\n')
+                .append("Dishes or cuisines the user likes: ").append(Preferences.liked(query).isEmpty()
+                        ? "none given" : String.join(", ", Preferences.liked(query))).append('\n')
                 .append("Restaurants checked: ").append(restaurantsChecked).append('\n')
                 .append("Recommended: ").append(recommendations.size()).append(", skipped: ").append(skipped.size())
                 .append("\n\n");

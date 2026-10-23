@@ -46,9 +46,17 @@ class SearchQueryBuilderTest {
         assertThat(SearchQueryBuilder.build(q)).isEqualTo("restaurant for breakfast, lunch and dinner in Barcelona");
     }
 
+    @Test
+    void tastePreferencesStayOutOfTheSearch() {
+        TripQuery q = new TripQuery("Barcelona", "", List.of(Meal.DINNER), DietPreference.VEGETARIAN,
+                DietStrictness.LACTO_OVO, Budget.UNSPECIFIED, List.of(), List.of(), "", "en", 0, List.of(),
+                List.of("mild, not spicy"));
+        assertThat(SearchQueryBuilder.build(q)).isEqualTo("vegetarian dinner in Barcelona");
+    }
+
     private static TripQuery query(String neighbourhood, DietPreference diet, DietStrictness strictness,
                                    List<String> cuisines, List<Meal> meals) {
         return new TripQuery("Barcelona", neighbourhood, meals, diet, strictness,
-                Budget.UNSPECIFIED, cuisines, List.of(), "", "en", 0, List.of());
+                Budget.UNSPECIFIED, cuisines, List.of(), "", "en", 0, List.of(), List.of());
     }
 }

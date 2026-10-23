@@ -14,6 +14,7 @@ import com.anthropic.models.messages.StructuredMessageCreateParams;
 import com.anthropic.models.messages.TextBlockParam;
 
 import org.example.restaurantsuggestionagent.llm.LlmException;
+import org.example.restaurantsuggestionagent.query.Preferences;
 import org.example.restaurantsuggestionagent.query.TripQuery;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -85,8 +86,8 @@ public class ClaudeMenuExtractor implements MenuExtractor {
                 Dishes or cuisines the user likes: %s
                 Foods the user wants to avoid: %s
                 """.formatted(restaurantName, query.userLanguage(), query.diet(), query.strictness(),
-                query.meals(), query.cuisinePreferences().isEmpty() ? "none"
-                        : String.join(", ", query.cuisinePreferences()), query.avoid().isEmpty() ? "none" : String.join(", ", query.avoid()));
+                query.meals(), Preferences.liked(query).isEmpty() ? "none"
+                        : String.join(", ", Preferences.liked(query)), query.avoid().isEmpty() ? "none" : String.join(", ", query.avoid()));
 
         List<ContentBlockParam> content;
         if (menu.isPdf()) {

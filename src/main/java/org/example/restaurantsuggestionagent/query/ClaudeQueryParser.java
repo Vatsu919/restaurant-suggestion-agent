@@ -32,6 +32,8 @@ public class ClaudeQueryParser implements QueryParser {
             - visitDate: resolve relative dates ("tomorrow", "next Friday") using the date given in the message.
             - userLanguage: the language the request is written in.
             - maxSpendPerPerson: only an amount the user states; 0 otherwise. Also set budget from it.
+            - tastePreferences: how the user likes their food ("less spicy" → "mild, not spicy"); a mild \
+            wish is a preference, not something to avoid.
             - priorities: only what the user says matters most ("mainly", "only", "most important", \
             "I really want"); empty when they just list wishes.
             """;

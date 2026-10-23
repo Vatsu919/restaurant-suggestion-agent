@@ -43,7 +43,7 @@ class SummarizeStepTest {
         events.open(runId);
         context = new RunContext(runId, "veg dinner", events);
         context.query(new TripQuery("Barcelona", "", List.of(Meal.DINNER), DietPreference.VEGETARIAN,
-                DietStrictness.LACTO_OVO, Budget.UNSPECIFIED, List.of(), List.of(), "", "en", 0, List.of()));
+                DietStrictness.LACTO_OVO, Budget.UNSPECIFIED, List.of(), List.of(), "", "en", 0, List.of(), List.of()));
         // Three ranked restaurants and one skipped; only the top two are written up.
         context.candidates(List.of(place("a"), place("b"), place("c")));
         context.skip(StepType.FILTER, place("x"), SkipReason.LOW_RATING, "Rated 2.5, below the minimum of 3.0");

@@ -15,7 +15,7 @@ final class TestData {
 
     static TripQuery query(DietPreference diet, DietStrictness strictness, String... avoid) {
         return new TripQuery("Barcelona", "", List.of(Meal.DINNER), diet, strictness, Budget.UNSPECIFIED,
-                List.of(), List.of(avoid), "", "en", 0, List.of());
+                List.of(), List.of(avoid), "", "en", 0, List.of(), List.of());
     }
 
     static TripQuery vegetarian() {

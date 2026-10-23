@@ -30,7 +30,7 @@ class DiscoverStepTest {
         context = new RunContext(runId, "veg breakfast and dinner", events);
         context.query(new TripQuery("Barcelona", "Gràcia", List.of(Meal.BREAKFAST, Meal.DINNER),
                 DietPreference.VEGETARIAN, DietStrictness.LACTO_OVO, Budget.UNSPECIFIED,
-                List.of(), List.of(), "", "en", 0, List.of()));
+                List.of(), List.of(), "", "en", 0, List.of(), List.of()));
     }
 
     @Test

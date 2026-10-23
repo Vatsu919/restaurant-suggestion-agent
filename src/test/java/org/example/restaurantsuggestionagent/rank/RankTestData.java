@@ -31,7 +31,7 @@ final class RankTestData {
     static TripQuery query(DietPreference diet, double maxSpend, List<String> cuisines, List<RankingFactor> priorities) {
         return new TripQuery("Barcelona", "", List.of(Meal.BREAKFAST, Meal.DINNER), diet,
                 diet == DietPreference.VEGETARIAN ? DietStrictness.LACTO_OVO : DietStrictness.UNSPECIFIED,
-                maxSpend > 0 ? Budget.CHEAP : Budget.UNSPECIFIED, cuisines, List.of(), "", "en", maxSpend, priorities);
+                maxSpend > 0 ? Budget.CHEAP : Budget.UNSPECIFIED, cuisines, List.of(), "", "en", maxSpend, priorities, List.of());
     }
 
     static TripQuery vegetarian() {

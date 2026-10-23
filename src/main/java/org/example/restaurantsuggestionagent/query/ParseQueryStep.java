@@ -78,7 +78,8 @@ public class ParseQueryStep implements PipelineStep {
                 nonNull(q.visitDate()),
                 q.userLanguage() == null || q.userLanguage().isBlank() ? "en" : q.userLanguage(),
                 Math.max(0, q.maxSpendPerPerson()),
-                q.priorities() == null ? List.of() : List.copyOf(q.priorities()));
+                q.priorities() == null ? List.of() : List.copyOf(q.priorities()),
+                q.tastePreferences() == null ? List.of() : List.copyOf(q.tastePreferences()));
     }
 
     private static String summary(TripQuery q) {
@@ -91,6 +92,7 @@ public class ParseQueryStep implements PipelineStep {
         return "Looking for " + diet + " " + q.meals().stream().map(m -> m.name().toLowerCase()).toList()
                 + " in " + where
                 + (q.maxSpendPerPerson() > 0 ? ", up to " + q.maxSpendPerPerson() + " per person" : "")
+                + (q.tastePreferences().isEmpty() ? "" : ", liking " + String.join(", ", q.tastePreferences()))
                 + (q.priorities().isEmpty() ? "" : ", mainly caring about " + q.priorities());
     }
 
@@ -108,6 +110,7 @@ public class ParseQueryStep implements PipelineStep {
         data.put("userLanguage", q.userLanguage());
         data.put("maxSpendPerPerson", q.maxSpendPerPerson());
         data.put("priorities", q.priorities());
+        data.put("tastePreferences", q.tastePreferences());
         return data;
     }
 

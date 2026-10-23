@@ -224,7 +224,7 @@ class FilterStepTest {
 
     private static TripQuery query(List<Meal> meals, String visitDate) {
         return new TripQuery("Barcelona", "", meals, DietPreference.VEGETARIAN, DietStrictness.LACTO_OVO,
-                Budget.UNSPECIFIED, List.of(), List.of(), visitDate, "en", 0, List.of());
+                Budget.UNSPECIFIED, List.of(), List.of(), visitDate, "en", 0, List.of(), List.of());
     }
 
     private static Builder place(String id) {

@@ -35,7 +35,7 @@ class ParseQueryStepTest {
     void storesParsedQueryAndReportsSummary() {
         TripQuery parsed = new TripQuery("Barcelona", "Gràcia", List.of(Meal.BREAKFAST, Meal.DINNER),
                 DietPreference.VEGETARIAN, DietStrictness.NO_EGG, Budget.MODERATE,
-                List.of("tapas"), List.of("nuts"), "2026-10-24", "en", 0, List.of());
+                List.of("tapas"), List.of("nuts"), "2026-10-24", "en", 0, List.of(), List.of());
 
         new ParseQueryStep((msg, today) -> parsed, FIXED).execute(context);
 
@@ -74,7 +74,7 @@ class ParseQueryStepTest {
     @Test
     void vegetarianWithoutStrictnessMeansLactoOvo() {
         TripQuery parsed = new TripQuery("Barcelona", "", List.of(Meal.LUNCH), DietPreference.VEGETARIAN,
-                DietStrictness.UNSPECIFIED, Budget.UNSPECIFIED, List.of(), List.of(), "", "en", 0, List.of());
+                DietStrictness.UNSPECIFIED, Budget.UNSPECIFIED, List.of(), List.of(), "", "en", 0, List.of(), List.of());
 
         new ParseQueryStep((msg, today) -> parsed, FIXED).execute(context);
 
@@ -91,6 +91,6 @@ class ParseQueryStepTest {
     }
 
     private static TripQuery minimal(String city) {
-        return new TripQuery(city, null, List.of(), DietPreference.ANY, null, null, null, null, null, null, 0, null);
+        return new TripQuery(city, null, List.of(), DietPreference.ANY, null, null, null, null, null, null, 0, null, List.of());
     }
 }

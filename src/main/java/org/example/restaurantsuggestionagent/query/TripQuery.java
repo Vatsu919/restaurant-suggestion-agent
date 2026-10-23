@@ -30,10 +30,12 @@ public record TripQuery(
         @JsonPropertyDescription("Budget level. UNSPECIFIED if not mentioned.")
         Budget budget,
 
-        @JsonPropertyDescription("Cuisines or dishes the user would like, e.g. [\"tapas\", \"Italian\"].")
+        @JsonPropertyDescription("Cuisines or dishes the user would like, e.g. [\"tapas\", \"Italian\"]. "
+                + "Only cuisines and dishes; how they like their food goes in tastePreferences.")
         List<String> cuisinePreferences,
 
-        @JsonPropertyDescription("Foods the user wants to avoid or is allergic to, e.g. [\"nuts\", \"mushrooms\"].")
+        @JsonPropertyDescription("Ingredients the user must not eat (allergies, strong dislikes), e.g. "
+                + "[\"nuts\", \"mushrooms\"]. Not taste wishes like \"not too spicy\": those go in tastePreferences.")
         List<String> avoid,
 
         @JsonPropertyDescription("Date of the visit as YYYY-MM-DD, resolved against today's date. Empty if not mentioned.")
@@ -51,5 +53,10 @@ public record TripQuery(
                 + "[DIETARY_MATCH] for \"I mainly care about vegetarian options\", [PRICE_MATCH] for "
                 + "\"I have only €15\", [RATING] for \"only the best-rated places\", [FOOD_MATCH] for "
                 + "\"I really want good tapas\". Empty if they don't say what matters most.")
-        List<RankingFactor> priorities) {
+        List<RankingFactor> priorities,
+
+        @JsonPropertyDescription("How the user likes their food, beyond cuisine, e.g. [\"mild, not spicy\"] for "
+                + "\"I prefer very little spicy food\", [\"spicy\"], [\"high-protein\"], [\"light\"]. "
+                + "Empty if not mentioned.")
+        List<String> tastePreferences) {
 }

@@ -21,7 +21,7 @@ class ClaudeAnswerWriterTest {
     @Test
     void requestCarriesTheFactsButNoLinks() {
         TripQuery query = new TripQuery("Barcelona", "Gràcia", List.of(Meal.DINNER), DietPreference.VEGETARIAN,
-                DietStrictness.LACTO_OVO, Budget.UNSPECIFIED, List.of("spicy"), List.of(), "", "es", 0, List.of());
+                DietStrictness.LACTO_OVO, Budget.UNSPECIFIED, List.of("spicy"), List.of(), "", "es", 0, List.of(), List.of());
         Recommendation velada = new Recommendation(1, "p1", "Velada", 94.6, "food match 100 × 29% = 28.6 (…) → 94.6",
                 Set.of(Meal.DINNER), "Carrer X", "https://velada.example/", "https://maps.example/velada",
                 "https://velada.example/menu.pdf", "es",

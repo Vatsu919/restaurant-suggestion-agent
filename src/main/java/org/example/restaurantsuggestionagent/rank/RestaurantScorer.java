@@ -16,6 +16,7 @@ import org.example.restaurantsuggestionagent.extraction.MenuItem;
 import org.example.restaurantsuggestionagent.extraction.MenuReading;
 import org.example.restaurantsuggestionagent.query.Budget;
 import org.example.restaurantsuggestionagent.query.DietPreference;
+import org.example.restaurantsuggestionagent.query.Preferences;
 import org.example.restaurantsuggestionagent.query.RankingFactor;
 import org.example.restaurantsuggestionagent.query.TripQuery;
 import org.example.restaurantsuggestionagent.reviews.ReviewInsight;
@@ -55,8 +56,8 @@ public final class RestaurantScorer {
         List<String> rules = new ArrayList<>();
         if (weights.of(RankingFactor.FOOD_MATCH) > 0) {
             rules.add("food match = " + POINTS_PER_DISH + " points per dish you can eat"
-                    + (query.cuisinePreferences().isEmpty() ? "" : ", " + POINTS_PER_LIKED_DISH + " per "
-                    + String.join("/", query.cuisinePreferences()) + " dish") + ", max 100");
+                    + (Preferences.liked(query).isEmpty() ? "" : ", " + POINTS_PER_LIKED_DISH + " per "
+                    + String.join("/", Preferences.liked(query)) + " dish") + ", max 100");
         }
         if (weights.of(RankingFactor.DIETARY_MATCH) > 0) {
             rules.add("dietary match = % of the menu you can eat");
@@ -130,8 +131,9 @@ public final class RestaurantScorer {
         long liked = suitable.stream().filter(MenuItem::matchesPreferences).count();
         long other = suitable.size() - liked;
         double score = Math.min(100, other * POINTS_PER_DISH + liked * POINTS_PER_LIKED_DISH);
-        String reason = query.cuisinePreferences().isEmpty() ? suitable.size() + " dishes you can eat"
-                : suitable.size() + " dishes you can eat, " + liked + " of them " + String.join("/", query.cuisinePreferences());
+        List<String> likes = Preferences.liked(query);
+        String reason = likes.isEmpty() ? suitable.size() + " dishes you can eat"
+                : suitable.size() + " dishes you can eat, " + liked + " of them " + String.join("/", likes);
         return new Dimension(score, reason);
     }
 

@@ -16,7 +16,7 @@ class ContextReviewFinderTest {
 
     static TripQuery query(DietPreference diet, List<Meal> meals, List<String> avoid) {
         return new TripQuery("Barcelona", "", meals, diet, DietStrictness.UNSPECIFIED, Budget.UNSPECIFIED,
-                List.of(), avoid, "", "en", 0, List.of());
+                List.of(), avoid, "", "en", 0, List.of(), List.of());
     }
 
     static PlaceReview review(double rating, String text, String original) {

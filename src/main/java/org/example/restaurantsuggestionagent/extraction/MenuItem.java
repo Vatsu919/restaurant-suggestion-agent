@@ -47,7 +47,8 @@ public record MenuItem(
         String containsAvoided,
 
         @JsonPropertyDescription("True if the dish is one of the dishes or cuisines the user likes, "
-                + "e.g. a tapa for \"tapas\", a spicy dish for \"spicy food\". False if the user named none.")
+                + "e.g. a tapa for \"tapas\", a spicy dish for \"spicy\", a dish with no chili or heat for "
+                + "\"mild, not spicy\". False if the user named none.")
         boolean matchesPreferences) {
 
     public MenuItem {
