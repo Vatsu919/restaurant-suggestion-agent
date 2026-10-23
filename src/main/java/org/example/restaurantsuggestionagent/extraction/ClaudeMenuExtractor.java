@@ -45,8 +45,8 @@ public class ClaudeMenuExtractor implements MenuExtractor {
             exactly as written.
             - diet: VEGAN or VEGETARIAN only when the menu marks the dish that way or its listed ingredients \
             show it; MEAT_OR_FISH when it contains meat, fish or seafood; otherwise UNCLEAR.
-            - List at most %d dishes. If the menu has more, keep the ones most relevant to the user's diet \
-            and meals, and set itemsOmitted to true.
+            - List at most %d dishes. If the menu has more, keep the ones most relevant to the user's diet, \
+            meals and the dishes or cuisines they like, and set itemsOmitted to true.
             """.formatted(MAX_ITEMS);
 
     private final AnthropicClient client;

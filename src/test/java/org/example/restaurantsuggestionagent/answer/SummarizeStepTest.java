@@ -89,6 +89,25 @@ class SummarizeStepTest {
     }
 
     @Test
+    void dishesMatchingThePreferencesComeFirst() {
+        MenuItem mild = new MenuItem("Hummus", "Hummus", "", "", List.of(), "8 €", 8, DietTag.VEGAN,
+                EggContent.NO_EGG, "", false);
+        MenuItem salad = new MenuItem("Salad", "Ensalada", "", "", List.of(), "9 €", 9, DietTag.VEGAN,
+                EggContent.NO_EGG, "", false);
+        MenuItem spicy = new MenuItem("Curry picante", "Spicy curry", "", "", List.of(), "12 €", 12, DietTag.VEGAN,
+                EggContent.NO_EGG, "", true);
+        MenuReading menu = new MenuReading("a", "https://a.example/menu", MenuKind.REGULAR, "es", "EUR",
+                List.of(mild, salad, spicy), List.of(mild, salad, spicy), false, false);
+
+        Recommendation r = new SummarizeStep((q, c, recs, s) -> null, 2, 2)
+                .facts(ranked("a", 1, 90), place("a"), menu, reviews("a"));
+
+        // Only 2 dishes are shown: the spicy one first, then the first other dish on the menu.
+        assertThat(r.dishes()).extracting(Recommendation.Dish::name).containsExactly("Spicy curry", "Hummus");
+        assertThat(r.dishes().get(0).matchesPreferences()).isTrue();
+    }
+
+    @Test
     void ifTheWriteUpFailsTheFactsAreStillShown() {
         AnswerWriter failing = (query, checked, recs, skipped) -> {
             throw new LlmException("the model's answer was cut off before it finished");

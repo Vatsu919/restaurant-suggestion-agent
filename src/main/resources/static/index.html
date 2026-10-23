@@ -71,6 +71,8 @@
         details.inner { margin-top: .6rem; }
         details.inner summary { cursor: pointer; color: var(--accent); }
         .calc { white-space: pre-wrap; font-size: .85rem; }
+        .tag { font-size: .72rem; padding: .05rem .4rem; border-radius: 999px; border: 1px solid var(--ok);
+               color: var(--ok); white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -240,8 +242,9 @@
             table.append(head);
             for (const d of r.dishes) {
                 const tr = document.createElement('tr');
-                tr.append(el('td', null, d.name + (d.description ? ' — ' + d.description : '')),
-                    el('td', null, d.originalName), el('td', null, d.price || '—'));
+                const dish = el('td', null, d.name + (d.description ? ' — ' + d.description : ''));
+                if (d.matchesPreferences) dish.append(' ', el('span', 'tag', 'matches what you asked for'));
+                tr.append(dish, el('td', null, d.originalName), el('td', null, d.price || '—'));
                 table.append(tr);
             }
             wrap.append(table);

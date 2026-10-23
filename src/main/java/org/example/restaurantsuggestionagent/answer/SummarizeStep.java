@@ -1,6 +1,7 @@
 package org.example.restaurantsuggestionagent.answer;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -103,8 +104,11 @@ public class SummarizeStep implements PipelineStep {
 
     /** The facts for one restaurant, from the earlier steps. */
     Recommendation facts(RankedRestaurant ranked, PlaceCandidate place, MenuReading menu, ReviewInsight reviews) {
+        // Dishes matching what the user asked for (e.g. spicy) first; sorting is stable, so menu order
+        // is kept within each group.
         List<Recommendation.Dish> dishes = menu.matchingItems().stream()
                 .filter(d -> place.matchedMeals().stream().anyMatch(d::servedAt))
+                .sorted(Comparator.comparing(MenuItem::matchesPreferences).reversed())
                 .limit(dishesPerRestaurant)
                 .map(SummarizeStep::dish)
                 .toList();
@@ -118,7 +122,8 @@ public class SummarizeStep implements PipelineStep {
     }
 
     private static Recommendation.Dish dish(MenuItem item) {
-        return new Recommendation.Dish(item.translatedName(), item.originalName(), item.priceText(), item.description());
+        return new Recommendation.Dish(item.translatedName(), item.originalName(), item.priceText(), item.description(),
+                item.matchesPreferences());
     }
 
     private static String contextQuote(ContextReviewFinder.Match match) {

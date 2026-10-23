@@ -16,7 +16,7 @@ public record RestaurantWriteUp(
         String whyThisPlace,
 
         @JsonPropertyDescription("Two to four dishes from the facts to try, with their prices as given. "
-                + "Only dishes listed in the facts.")
+                + "Only dishes listed in the facts; prefer the ones marked as matching what the user likes.")
         String whatToOrder,
 
         @JsonPropertyDescription("What reviewers say, based only on the review quotes in the facts, including "
