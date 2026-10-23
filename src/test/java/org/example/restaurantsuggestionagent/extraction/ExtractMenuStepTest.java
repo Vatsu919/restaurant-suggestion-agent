@@ -139,10 +139,29 @@ class ExtractMenuStepTest {
         assertThat(context.candidates().get(0).matchedMeals()).containsExactly(Meal.DINNER);
         assertThat(context.menuReadings().get("a").matchingFor(Meal.DINNER)).hasSize(1);
         assertThat(context.skippedRestaurants()).extracting(SkippedRestaurant::id, SkippedRestaurant::detail)
-                .containsExactly(tuple("b", "None of the 1 dishes that suit vegetarian is served at breakfast"));
+                .containsExactly(tuple("b", "No suitable dishes served at breakfast"));
         List<String> messages = events.events(context.runId()).stream().map(AgentEvent::message).toList();
         assertThat(messages).anySatisfy(msg -> assertThat(msg).startsWith("Name a: ")
-                .endsWith("(not considered for breakfast: no suitable dishes served then)"));
+                .endsWith("(not considered for breakfast: no suitable dishes served at breakfast)"));
+    }
+
+    @Test
+    void aPlaceWhoseOnlySuitableDinnerDishesAreDessertsIsSkippedForDinner() {
+        // The Bubita case: every dish that suits the user is a dessert.
+        menus("a", "b");
+        answers.put("Name a", regular(dessert("Mango mousse"), dessert("Cheesecake")));
+        answers.put("Name b", regular(dessert("Cheesecake"), dish("Curry", DietTag.VEGAN, EggContent.NO_EGG)));
+
+        step(40000).execute(context);
+
+        assertThat(context.candidates()).extracting(PlaceCandidate::id).containsExactly("b");
+        assertThat(context.skippedRestaurants()).extracting(SkippedRestaurant::id, SkippedRestaurant::detail)
+                .containsExactly(tuple("a", "Only desserts or drinks suit you at dinner"));
+    }
+
+    private static MenuItem dessert(String name) {
+        return new MenuItem(name, name, "", "Desserts", List.of(), "5 €", 5, DietTag.VEGAN, EggContent.NO_EGG, "",
+                false, Course.DESSERT);
     }
 
     @Test

@@ -49,7 +49,11 @@ public record MenuItem(
         @JsonPropertyDescription("True if the dish is one of the dishes or cuisines the user likes, "
                 + "e.g. a tapa for \"tapas\", a spicy dish for \"spicy\", a dish with no chili or heat for "
                 + "\"mild, not spicy\". False if the user named none.")
-        boolean matchesPreferences) {
+        boolean matchesPreferences,
+
+        @JsonPropertyDescription("Which part of a meal the dish is: STARTER, MAIN, SIDE, DESSERT (sweets, cakes, "
+                + "ice cream), BREAKFAST (pancakes, toasts, bowls, pastries) or DRINK.")
+        Course course) {
 
     public MenuItem {
         meals = meals == null ? List.of() : List.copyOf(meals);
@@ -58,5 +62,10 @@ public record MenuItem(
     /** True if the dish is served at {@code meal}; a dish not tied to any meal is served at all of them. */
     public boolean servedAt(Meal meal) {
         return meals.isEmpty() || meals.contains(meal);
+    }
+
+    /** True if the dish is served at {@code meal} and makes a meal then (not a drink; not a dessert at lunch or dinner). */
+    public boolean isMealDishFor(Meal meal) {
+        return servedAt(meal) && course.makesAMealAt(meal);
     }
 }

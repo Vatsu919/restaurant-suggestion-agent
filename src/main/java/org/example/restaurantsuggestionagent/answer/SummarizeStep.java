@@ -104,11 +104,12 @@ public class SummarizeStep implements PipelineStep {
 
     /** The facts for one restaurant, from the earlier steps. */
     Recommendation facts(RankedRestaurant ranked, PlaceCandidate place, MenuReading menu, ReviewInsight reviews) {
-        // Dishes matching what the user asked for (e.g. spicy) first; sorting is stable, so menu order
-        // is kept within each group.
+        // Meal dishes (starters, mains…) before desserts and drinks, and within those the ones matching
+        // what the user asked for (e.g. mild) first. Sorting is stable, so menu order is kept otherwise.
         List<Recommendation.Dish> dishes = menu.matchingItems().stream()
                 .filter(d -> place.matchedMeals().stream().anyMatch(d::servedAt))
-                .sorted(Comparator.comparing(MenuItem::matchesPreferences).reversed())
+                .sorted(Comparator.comparing((MenuItem d) -> place.matchedMeals().stream().anyMatch(d::isMealDishFor))
+                        .thenComparing(MenuItem::matchesPreferences).reversed())
                 .limit(dishesPerRestaurant)
                 .map(SummarizeStep::dish)
                 .toList();
@@ -123,7 +124,7 @@ public class SummarizeStep implements PipelineStep {
 
     private static Recommendation.Dish dish(MenuItem item) {
         return new Recommendation.Dish(item.translatedName(), item.originalName(), item.priceText(), item.description(),
-                item.matchesPreferences());
+                item.matchesPreferences(), item.course());
     }
 
     private static String contextQuote(ContextReviewFinder.Match match) {

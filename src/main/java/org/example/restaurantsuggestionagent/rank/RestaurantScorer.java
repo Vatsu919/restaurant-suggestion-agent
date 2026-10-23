@@ -26,7 +26,8 @@ import org.example.restaurantsuggestionagent.reviews.ReviewInsight;
  * are combined with the request's {@link RankingWeights}; then 5 points are taken off for
  * each bad sign. Pure code, no LLM; every point comes with a reason.
  *
- * <p>Only dishes served at the meals the restaurant is considered for count ("relevant dishes").
+ * <p>Only meal dishes served at the meals the restaurant is considered for count ("relevant dishes"):
+ * no drinks, and no desserts at lunch or dinner.
  */
 public final class RestaurantScorer {
 
@@ -121,9 +122,9 @@ public final class RestaurantScorer {
         parts.add(new ScorePart(factor, Math.round(d.score()), round2(weight), round1(d.score() * weight), d.reason()));
     }
 
-    /** Dishes served at a meal the restaurant is still considered for. */
+    /** Meal dishes served at a meal the restaurant is still considered for (no drinks; no desserts at lunch or dinner). */
     static List<MenuItem> relevant(List<MenuItem> dishes, PlaceCandidate place) {
-        return dishes.stream().filter(d -> place.matchedMeals().stream().anyMatch(d::servedAt)).toList();
+        return dishes.stream().filter(d -> place.matchedMeals().stream().anyMatch(d::isMealDishFor)).toList();
     }
 
     /** 5 points per dish the user can eat, 10 if it's a kind they asked for (e.g. tapas); max 100. */

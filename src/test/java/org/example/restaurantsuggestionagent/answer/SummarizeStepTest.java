@@ -1,5 +1,6 @@
 package org.example.restaurantsuggestionagent.answer;
 
+import org.example.restaurantsuggestionagent.extraction.Course;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -91,11 +92,11 @@ class SummarizeStepTest {
     @Test
     void dishesMatchingThePreferencesComeFirst() {
         MenuItem mild = new MenuItem("Hummus", "Hummus", "", "", List.of(), "8 €", 8, DietTag.VEGAN,
-                EggContent.NO_EGG, "", false);
+                EggContent.NO_EGG, "", false, Course.MAIN);
         MenuItem salad = new MenuItem("Salad", "Ensalada", "", "", List.of(), "9 €", 9, DietTag.VEGAN,
-                EggContent.NO_EGG, "", false);
+                EggContent.NO_EGG, "", false, Course.MAIN);
         MenuItem spicy = new MenuItem("Curry picante", "Spicy curry", "", "", List.of(), "12 €", 12, DietTag.VEGAN,
-                EggContent.NO_EGG, "", true);
+                EggContent.NO_EGG, "", true, Course.MAIN);
         MenuReading menu = new MenuReading("a", "https://a.example/menu", MenuKind.REGULAR, "es", "EUR",
                 List.of(mild, salad, spicy), List.of(mild, salad, spicy), false, false);
 
@@ -133,7 +134,7 @@ class SummarizeStepTest {
 
     private static MenuReading menu(String id) {
         MenuItem hummus = new MenuItem("Hummus", "Hummus", "Chickpeas", "Starters", List.of(), "8,50 €", 8.5,
-                DietTag.VEGAN, EggContent.NO_EGG, "", false);
+                DietTag.VEGAN, EggContent.NO_EGG, "", false, Course.MAIN);
         return new MenuReading(id, "https://" + id + ".example/menu", MenuKind.REGULAR, "es", "EUR",
                 List.of(hummus), List.of(hummus), false, false);
     }

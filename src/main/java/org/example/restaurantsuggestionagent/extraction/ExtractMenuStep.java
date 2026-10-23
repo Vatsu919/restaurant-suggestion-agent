@@ -154,17 +154,23 @@ public class ExtractMenuStep implements PipelineStep {
         }
         Set<Meal> meals = EnumSet.noneOf(Meal.class);
         List<String> dropped = new ArrayList<>();
+        List<String> dropReasons = new ArrayList<>();
         for (Meal meal : place.matchedMeals()) {
-            if (matching.stream().anyMatch(i -> i.servedAt(meal))) {
+            String name = meal.name().toLowerCase(Locale.ROOT);
+            if (matching.stream().anyMatch(i -> i.isMealDishFor(meal))) {
                 meals.add(meal);
             } else {
-                dropped.add(meal.name().toLowerCase(Locale.ROOT));
+                dropped.add(name);
+                // A place whose only suitable dinner dishes are desserts or drinks isn't a dinner option.
+                dropReasons.add(matching.stream().anyMatch(i -> i.servedAt(meal))
+                        ? "only desserts or drinks suit you at " + name
+                        : "no suitable dishes served at " + name);
             }
         }
         if (meals.isEmpty()) {
-            skip(context, place, skips, SkipReason.NO_MATCHING_ITEMS, "None of the " + matching.size()
-                    + " dishes that suit " + DietMatcher.describe(query) + " is served at "
-                    + String.join(" or ", dropped), menu);
+            String reasons = String.join("; ", dropReasons);
+            skip(context, place, skips, SkipReason.NO_MATCHING_ITEMS,
+                    Character.toUpperCase(reasons.charAt(0)) + reasons.substring(1), menu);
             return;
         }
         mealsLeft.put(place.id(), meals);
@@ -190,7 +196,7 @@ public class ExtractMenuStep implements PipelineStep {
                 + ", " + matching.size() + " suit " + DietMatcher.describe(query) + ", e.g. " + examples(matching)
                 + " → " + menu.url()
                 + (dropped.isEmpty() ? "" : " (not considered for " + String.join(" or ", dropped)
-                        + ": no suitable dishes served then)"), data);
+                        + ": " + String.join("; ", dropReasons) + ")"), data);
     }
 
     private static void skip(RunContext context, PlaceCandidate place, Map<String, SkipReason> skips,
@@ -226,6 +232,7 @@ public class ExtractMenuStep implements PipelineStep {
         view.put("description", item.description());
         view.put("section", item.section());
         view.put("meals", item.meals());
+        view.put("course", item.course());
         view.put("price", item.priceText());
         view.put("diet", item.diet());
         return view;

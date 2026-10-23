@@ -1,5 +1,6 @@
 package org.example.restaurantsuggestionagent.answer;
 
+import org.example.restaurantsuggestionagent.extraction.Course;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -25,8 +26,8 @@ class ClaudeAnswerWriterTest {
         Recommendation velada = new Recommendation(1, "p1", "Velada", 94.6, "food match 100 × 29% = 28.6 (…) → 94.6",
                 Set.of(Meal.DINNER), "Carrer X", "https://velada.example/", "https://maps.example/velada",
                 "https://velada.example/menu.pdf", "es",
-                List.of(new Recommendation.Dish("Patatas bravas", "Bravas Velada", "6 €", "Spicy potatoes", true),
-                        new Recommendation.Dish("Hummus", "Hummus", "8 €", "Chickpeas", false)),
+                List.of(new Recommendation.Dish("Patatas bravas", "Bravas Velada", "6 €", "Spicy potatoes", true, Course.MAIN),
+                        new Recommendation.Dish("Hummus", "Hummus", "8 €", "Chickpeas", false, Course.MAIN)),
                 List.of("★5 \"Amazing\""), List.of(), List.of("★5 \"Best vegan tapas\" (mentions vegan)"), null);
         SkippedRestaurant skipped = new SkippedRestaurant("x", "Fat Veggies", "https://fat.example/", "https://maps/x",
                 StepType.RESOLVE_MENU, SkipReason.MENU_IS_IMAGE,
@@ -38,8 +39,10 @@ class ClaudeAnswerWriterTest {
         assertThat(request)
                 .contains("claude-haiku-5-5", "User's language: es", "City: Barcelona (Gràcia)")
                 .contains("<restaurant id=\"p1\" rank=\"1\">", "Dishes or cuisines the user likes: spicy")
-                .contains("- Patatas bravas | Bravas Velada | 6 € | Spicy potatoes [matches what the user likes]",
-                        "- Hummus | Hummus | 8 € | Chickpeas\n", "prefer dishes marked [matches what the user likes]")
+                .contains("- Patatas bravas | Bravas Velada | MAIN | 6 € | Spicy potatoes [matches what the user likes]",
+                        "- Hummus | Hummus | MAIN | 8 € | Chickpeas\n",
+                        "not only desserts or drinks; mention a dessert only as an extra",
+                        "prefer dishes marked [matches what the user likes]")
                 .contains("Score calculation: food match 100 × 29% = 28.6", "★5 \"Best vegan tapas\" (mentions vegan)")
                 .contains("Fat Veggies: MENU_IS_IMAGE — The menu is only published as images (on /menu)")
                 .contains("whatToOrder", "skippedSummary")

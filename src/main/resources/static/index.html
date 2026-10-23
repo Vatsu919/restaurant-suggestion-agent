@@ -244,6 +244,7 @@
                 const tr = document.createElement('tr');
                 const dish = el('td', null, d.name + (d.description ? ' — ' + d.description : ''));
                 if (d.matchesPreferences) dish.append(' ', el('span', 'tag', 'matches what you asked for'));
+                if (d.course === 'DESSERT' || d.course === 'DRINK') dish.append(' ', el('span', 'score', '(' + d.course.toLowerCase() + ')'));
                 tr.append(dish, el('td', null, d.originalName), el('td', null, d.price || '—'));
                 table.append(tr);
             }

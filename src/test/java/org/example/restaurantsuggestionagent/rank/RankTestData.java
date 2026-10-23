@@ -1,5 +1,6 @@
 package org.example.restaurantsuggestionagent.rank;
 
+import org.example.restaurantsuggestionagent.extraction.Course;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ final class RankTestData {
 
     static MenuItem dish(String name, DietTag diet, double price, boolean liked) {
         return new MenuItem(name, name, "Tasty", "Mains", List.of(), price > 0 ? price + " €" : "", price, diet,
-                EggContent.NO_EGG, "", liked);
+                EggContent.NO_EGG, "", liked, Course.MAIN);
     }
 
     /** A menu with {@code suitable} vegetarian dishes and {@code other} meat dishes, all at {@code price}. */

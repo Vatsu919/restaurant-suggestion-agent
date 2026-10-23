@@ -27,10 +27,10 @@ final class TestData {
     }
 
     static MenuItem dish(String name, DietTag diet, EggContent egg, List<Meal> meals) {
-        return new MenuItem(name, name, "", "Mains", meals, "9,50 €", 9.5, diet, egg, "", false);
+        return new MenuItem(name, name, "", "Mains", meals, "9,50 €", 9.5, diet, egg, "", false, Course.MAIN);
     }
 
     static MenuItem dish(String name, DietTag diet, EggContent egg, String containsAvoided) {
-        return new MenuItem(name, name, "", "Mains", List.of(), "9,50 €", 9.5, diet, egg, containsAvoided, false);
+        return new MenuItem(name, name, "", "Mains", List.of(), "9,50 €", 9.5, diet, egg, containsAvoided, false, Course.MAIN);
     }
 }

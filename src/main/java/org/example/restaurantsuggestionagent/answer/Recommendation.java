@@ -3,6 +3,7 @@ package org.example.restaurantsuggestionagent.answer;
 import java.util.List;
 import java.util.Set;
 
+import org.example.restaurantsuggestionagent.extraction.Course;
 import org.example.restaurantsuggestionagent.query.Meal;
 
 /**
@@ -25,7 +26,7 @@ public record Recommendation(int rank, String placeId, String name, double score
      * and whether it is one of the dishes or cuisines the user asked for (e.g. spicy).
      */
     public record Dish(String name, String originalName, String price, String description,
-                       boolean matchesPreferences) {
+                       boolean matchesPreferences, Course course) {
     }
 
     public Recommendation {
