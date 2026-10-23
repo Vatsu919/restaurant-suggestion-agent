@@ -32,8 +32,8 @@ import org.example.restaurantsuggestionagent.reviews.ReviewInsight;
 public final class RestaurantScorer {
 
     /** Food match: points per dish the user can eat, and per dish of a kind they asked for. Max 100. */
-    static final int POINTS_PER_DISH = 5;
-    static final int POINTS_PER_LIKED_DISH = 10;
+    static final int POINTS_PER_DISH = 1;
+    static final int POINTS_PER_LIKED_DISH = 8;
 
     /** Context reviews: the starting score, and points per good (★4–5) or bad (★1–2) review. */
     static final int CONTEXT_START = 50;
@@ -56,7 +56,7 @@ public final class RestaurantScorer {
     public List<String> rules(RankingWeights weights, TripQuery query) {
         List<String> rules = new ArrayList<>();
         if (weights.of(RankingFactor.FOOD_MATCH) > 0) {
-            rules.add("food match = " + POINTS_PER_DISH + " points per dish you can eat"
+            rules.add("food match = " + POINTS_PER_DISH + (POINTS_PER_DISH == 1 ? " point" : " points") + " per dish you can eat"
                     + (Preferences.liked(query).isEmpty() ? "" : ", " + POINTS_PER_LIKED_DISH + " per "
                     + String.join("/", Preferences.liked(query)) + " dish") + ", max 100");
         }
@@ -127,7 +127,7 @@ public final class RestaurantScorer {
         return dishes.stream().filter(d -> place.matchedMeals().stream().anyMatch(d::isMealDishFor)).toList();
     }
 
-    /** 5 points per dish the user can eat, 10 if it's a kind they asked for (e.g. tapas); max 100. */
+    /** 1 point per dish the user can eat, 8 if it's a kind they asked for (e.g. tapas); max 100. */
     static Dimension foodMatch(List<MenuItem> suitable, TripQuery query) {
         long liked = suitable.stream().filter(MenuItem::matchesPreferences).count();
         long other = suitable.size() - liked;

@@ -58,7 +58,7 @@ class RankStepTest {
         assertThat(context.rankings().get(0).meals()).containsExactlyInAnyOrder(Meal.BREAKFAST, Meal.DINNER);
         List<String> messages = events.events(context.runId()).stream().map(AgentEvent::message).toList();
         assertThat(messages.get(0)).isEqualTo("How each restaurant is scored: "
-                + "food match = 5 points per dish you can eat, max 100; dietary match = % of the menu you can eat; "
+                + "food match = 1 point per dish you can eat, max 100; dietary match = % of the menu you can eat; "
                 + "rating = ★3 → 0, ★4 → 50, ★5 → 100; "
                 + "positive reviews = % of the reviews Google shows that are ★4–5; "
                 + "context reviews = 50, +10 per good and −10 per bad review about your request; "
@@ -67,16 +67,16 @@ class RankStepTest {
                 + "no vegetarian food, no review in the last year)");
         assertThat(messages.get(1)).startsWith("Weights for your request: FOOD_MATCH 25%")
                 .endsWith("(PRICE_MATCH not used (no budget given))");
-        // b: food 20×5=100, dietary 20/20=100, rating ★4.5=75, positive 2 of 2=100, context 50+2×10=70.
+        // b: food 20×1=20, dietary 20/20=100, rating ★4.5=75, positive 2 of 2=100, context 50+2×10=70.
         // Weights without a budget: 20, 20, 10, 10, 20 out of 80 = 25%, 25%, 12.5%, 12.5%, 25%.
         assertThat(messages.get(2)).isEqualTo("#1 Name b: "
-                + "food match 100 × 25% = 25.0 (20 dishes you can eat) "
+                + "food match 20 × 25% = 5.0 (20 dishes you can eat) "
                 + "+ dietary match 100 × 25% = 25.0 (20 of 20 dishes suit vegetarian) "
                 + "+ rating 75 × 13% = 9.4 (Google ★4.5 (2000 reviews)) "
                 + "+ positive reviews 100 × 13% = 12.5 (2 of 2 reviews are positive) "
                 + "+ context reviews 70 × 25% = 17.5 (2 good and 0 bad reviews about your request) "
-                + "= 89.4; no bad signs → 89.4");
+                + "= 69.4; no bad signs → 69.4");
         assertThat(messages.get(3)).startsWith("#2 Name a: ");
-        assertThat(messages.get(4)).startsWith("Ranking of 2 restaurants: 1. Name b (89.4); 2. Name a (");
+        assertThat(messages.get(4)).startsWith("Ranking of 2 restaurants: 1. Name b (69.4); 2. Name a (");
     }
 }

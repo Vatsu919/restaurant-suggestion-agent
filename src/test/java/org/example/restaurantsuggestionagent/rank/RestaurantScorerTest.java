@@ -33,8 +33,8 @@ class RestaurantScorerTest {
         List<MenuItem> eight = IntStream.range(0, 8).mapToObj(i -> dish("D" + i, DietTag.VEGAN, 9, i < 4)).toList();
         List<MenuItem> thirty = IntStream.range(0, 30).mapToObj(i -> dish("D" + i, DietTag.VEGAN, 9, false)).toList();
 
-        assertThat(RestaurantScorer.foodMatch(eight, vegetarian()).score()).isEqualTo(60); // 4×5 + 4×10
-        assertThat(RestaurantScorer.foodMatch(thirty, vegetarian()).score()).isEqualTo(100); // capped
+        assertThat(RestaurantScorer.foodMatch(eight, vegetarian()).score()).isEqualTo(36); // 4×1 + 4×8
+        assertThat(RestaurantScorer.foodMatch(thirty, vegetarian()).score()).isEqualTo(30);
         assertThat(RestaurantScorer.foodMatch(eight, query(DietPreference.VEGETARIAN, 0, List.of("tapas"), List.of()))
                 .reason()).isEqualTo("8 dishes you can eat, 4 of them tapas");
     }
