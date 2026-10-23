@@ -1,0 +1,12 @@
+{
+  "places": [
+    {
+      "id": "place-third",
+      "displayName": { "text": "Terra Verda", "languageCode": "ca" },
+      "websiteUri": "https://terraverda.example/",
+      "rating": 4.4,
+      "userRatingCount": 87,
+      "businessStatus": "OPERATIONAL"
+    }
+  ]
+}

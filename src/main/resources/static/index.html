@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Restaurant Agent</title>
+    <style>
+        :root {
+            --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --border: #d0d7de; --panel: #f6f8fa;
+            --accent: #0969da; --ok: #1a7f37; --warn: #9a6700; --bad: #cf222e;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --border: #30363d; --panel: #161b22;
+                --accent: #4493f8; --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+            }
+        }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); max-width: 920px;
+               margin: 2rem auto; padding: 0 16px; line-height: 1.45; }
+        h1 { margin-bottom: .2rem; }
+        .sub { color: var(--muted); margin-top: 0; }
+        textarea { width: 100%; min-height: 4rem; font: inherit; padding: .5rem; background: var(--panel);
+                   color: var(--fg); border: 1px solid var(--border); border-radius: 6px; }
+        button { font: inherit; padding: .45rem 1rem; border-radius: 6px; border: 1px solid var(--border);
+                 background: var(--accent); color: #fff; cursor: pointer; }
+        button:disabled { opacity: .6; cursor: default; }
+        a { color: var(--accent); overflow-wrap: anywhere; }
+        #status { color: var(--muted); margin-left: .5rem; }
+
+        /* Steps */
+        details.step { border: 1px solid var(--border); border-radius: 8px; margin: .5rem 0; background: var(--bg); }
+        details.step > summary { cursor: pointer; padding: .6rem .8rem; display: flex; gap: .6rem; align-items: baseline;
+                                 flex-wrap: wrap; list-style: none; }
+        details.step > summary::-webkit-details-marker { display: none; }
+        details.step > summary::before { content: "▸"; color: var(--muted); }
+        details.step[open] > summary::before { content: "▾"; }
+        .step-name { font-weight: 600; }
+        .badge { font-size: .75rem; padding: .05rem .45rem; border-radius: 999px; border: 1px solid currentColor; }
+        .STARTED, .PROGRESS { color: var(--muted); } .COMPLETED { color: var(--ok); }
+        .SKIPPED { color: var(--warn); } .FAILED { color: var(--bad); }
+        .step-summary { color: var(--muted); font-size: .9rem; flex-basis: 100%; padding-left: 1.2rem; white-space: pre-wrap; }
+        .events { list-style: none; margin: 0; padding: 0 .8rem .6rem 1.8rem; }
+        .events li { padding: .35rem 0; border-top: 1px solid var(--border); white-space: pre-wrap; overflow-wrap: anywhere; }
+        .events li.SKIPPED .msg { color: var(--warn); }
+        .events li.FAILED .msg { color: var(--bad); }
+        .msg { color: var(--fg); }
+        details.data summary { cursor: pointer; color: var(--muted); font-size: .8rem; }
+        pre { background: var(--panel); padding: .5rem; margin: .3rem 0 0; font-size: .78rem; white-space: pre-wrap;
+              overflow-wrap: anywhere; border-radius: 6px; max-height: 24rem; overflow: auto; }
+
+        /* Final answer */
+        #answer h2 { margin-top: 2rem; }
+        .intro { white-space: pre-wrap; }
+        .card { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin: 1rem 0; background: var(--panel); }
+        .card h3 { margin: 0; display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; }
+        .rank { color: var(--accent); }
+        .score { font-size: .85rem; font-weight: 500; color: var(--muted); }
+        .headline { font-style: italic; margin: .3rem 0 .6rem; }
+        .meta { color: var(--muted); font-size: .9rem; margin: .2rem 0 .6rem; }
+        .field { margin: .35rem 0; }
+        .field b { display: inline-block; min-width: 7.5rem; }
+        .links { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; }
+        .links a { border: 1px solid var(--border); border-radius: 6px; padding: .25rem .7rem; text-decoration: none;
+                   background: var(--bg); }
+        table { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: .4rem; }
+        th, td { text-align: left; padding: .3rem .4rem; border-top: 1px solid var(--border); vertical-align: top; }
+        th { color: var(--muted); font-weight: 500; }
+        .table-wrap { overflow-x: auto; }
+        ul.quotes { margin: .2rem 0; padding-left: 1.2rem; }
+        details.inner { margin-top: .6rem; }
+        details.inner summary { cursor: pointer; color: var(--accent); }
+        .calc { white-space: pre-wrap; font-size: .85rem; }
+    </style>
+</head>
+<body>
+<h1>Restaurant Agent</h1>
+<p class="sub">Tell it where you are, what you eat and which meals you want. Every step it takes is shown below.</p>
+<textarea id="message">I am vegetarian and visiting Barcelona. Suggest places for breakfast and dinner.</textarea>
+<p><button id="go">Start run</button><span id="status"></span></p>
+
+<div id="steps"></div>
+<div id="answer"></div>
+
+<script>
+    const STEP_NAMES = {
+        PARSE_QUERY: '1. Understanding your request',
+        DISCOVER: '2. Finding restaurants (Google Places)',
+        FILTER: '3. Filtering',
+        RESOLVE_MENU: '4. Finding menus on websites',
+        EXTRACT_MENU: '5. Reading and translating menus',
+        ANALYZE_REVIEWS: '6. Reading reviews',
+        RANK: '7. Ranking',
+        SUMMARIZE: '8. Writing recommendations'
+    };
+    const stepsEl = document.getElementById('steps');
+    const answerEl = document.getElementById('answer');
+    const statusEl = document.getElementById('status');
+    const goButton = document.getElementById('go');
+    const steps = {};
+
+    /** Appends text to a node, turning http(s) URLs into links. Never uses innerHTML for data. */
+    function appendLinked(node, text) {
+        const parts = String(text ?? '').split(/(https?:\/\/[^\s<>"')]+)/g);
+        for (const part of parts) {
+            if (/^https?:\/\//.test(part)) {
+                const a = document.createElement('a');
+                a.href = part; a.textContent = part; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                node.append(a);
+            } else if (part) {
+                node.append(part);
+            }
+        }
+        return node;
+    }
+
+    function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) appendLinked(node, text);
+        return node;
+    }
+
+    function stepSection(step) {
+        if (steps[step]) return steps[step];
+        const details = el('details', 'step');
+        const summary = document.createElement('summary');
+        const name = el('span', 'step-name', STEP_NAMES[step] || step);
+        const badge = el('span', 'badge STARTED', 'running');
+        const counts = el('span', 'score');
+        const last = el('span', 'step-summary');
+        summary.append(name, badge, counts, last);
+        const list = el('ul', 'events');
+        details.append(summary, list);
+        stepsEl.append(details);
+        steps[step] = {details, badge, counts, last, list, events: 0, skipped: 0};
+        return steps[step];
+    }
+
+    function addEvent(e) {
+        if (e.step === 'RUN') {
+            if (e.status === 'COMPLETED' || e.status === 'FAILED') finish(e);
+            return;
+        }
+        const s = stepSection(e.step);
+        if (e.status === 'STARTED') {
+            s.details.open = true;
+        }
+        if (e.status === 'COMPLETED' || e.status === 'FAILED') {
+            s.badge.className = 'badge ' + e.status;
+            s.badge.textContent = e.status === 'COMPLETED' ? 'done' : 'failed';
+            s.details.open = e.status === 'FAILED';
+            if (e.status === 'FAILED') { s.last.textContent = ''; appendLinked(s.last, e.message); }
+            return;
+        }
+        if (e.status === 'SKIPPED') s.skipped++;
+        if (e.status === 'PROGRESS' && !e.restaurantId) {
+            // Step-level progress (e.g. "Found menus for 16 of 32 restaurants") becomes the section summary.
+            s.last.textContent = '';
+            appendLinked(s.last, e.message);
+        }
+        s.events++;
+        s.counts.textContent = s.events + ' events' + (s.skipped ? ', ' + s.skipped + ' skipped' : '');
+
+        const li = el('li', e.status);
+        li.append(el('span', 'msg', e.message));
+        if (e.data && Object.keys(e.data).length) {
+            const data = el('details', 'data');
+            data.append(el('summary', null, 'details'));
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(e.data, null, 2);
+            data.append(pre);
+            li.append(data);
+        }
+        s.list.append(li);
+    }
+
+    async function finish(e) {
+        goButton.disabled = false;
+        statusEl.textContent = e.status === 'COMPLETED' ? 'Finished.' : 'Failed: ' + e.message;
+        if (e.status !== 'COMPLETED') return;
+        const res = await fetch('/api/runs/' + e.runId);
+        if (!res.ok) return;
+        const run = await res.json();
+        if (run.answer) renderAnswer(run.answer);
+    }
+
+    function field(label, text) {
+        const div = el('div', 'field');
+        div.append(el('b', null, label));
+        appendLinked(div, text);
+        return div;
+    }
+
+    function quotes(label, list) {
+        const div = el('div', 'field');
+        div.append(el('b', null, label));
+        if (!list.length) { div.append('none'); return div; }
+        const ul = el('ul', 'quotes');
+        list.forEach(q => ul.append(el('li', null, q)));
+        div.append(ul);
+        return div;
+    }
+
+    function link(label, url) {
+        const a = el('a', null, label);
+        a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        return a;
+    }
+
+    function renderAnswer(answer) {
+        answerEl.innerHTML = '';
+        answerEl.append(el('h2', null, 'Your recommendations'));
+        if (answer.intro) answerEl.append(el('p', 'intro', answer.intro));
+
+        for (const r of answer.recommendations) {
+            const card = el('div', 'card');
+            const h3 = document.createElement('h3');
+            h3.append(el('span', 'rank', '#' + r.rank), el('span', null, r.name),
+                el('span', 'score', 'score ' + r.score));
+            card.append(h3);
+            const meals = [...r.meals].map(m => m.toLowerCase()).sort().join(' and ');
+            card.append(el('div', 'meta', 'For ' + meals + (r.address ? ' · ' + r.address : '')));
+
+            const w = r.writeUp;
+            if (w) {
+                card.append(el('div', 'headline', w.headline));
+                card.append(field('Why', w.whyThisPlace));
+                card.append(field('What to order', w.whatToOrder));
+                card.append(field('Reviewers', w.whatReviewersSay));
+                if (w.watchOutFor) card.append(field('Watch out', w.watchOutFor));
+            }
+
+            const dishes = el('details', 'inner');
+            dishes.append(el('summary', null, 'Dishes for you (' + r.dishes.length + ')'));
+            const wrap = el('div', 'table-wrap');
+            const table = document.createElement('table');
+            const head = document.createElement('tr');
+            ['Dish', 'On the menu', 'Price'].forEach(h => head.append(el('th', null, h)));
+            table.append(head);
+            for (const d of r.dishes) {
+                const tr = document.createElement('tr');
+                tr.append(el('td', null, d.name + (d.description ? ' — ' + d.description : '')),
+                    el('td', null, d.originalName), el('td', null, d.price || '—'));
+                table.append(tr);
+            }
+            wrap.append(table);
+            dishes.append(wrap);
+            dishes.open = !w;
+            card.append(dishes);
+
+            const reviews = el('details', 'inner');
+            reviews.append(el('summary', null, 'Reviews'));
+            reviews.append(quotes('About your request', r.reviewsAboutRequest), quotes('Positive', r.positiveReviews),
+                quotes('Critical', r.criticalReviews));
+            card.append(reviews);
+
+            const calc = el('details', 'inner');
+            calc.append(el('summary', null, 'How this score was calculated'));
+            calc.append(el('div', 'calc', r.calculation.replaceAll(' + ', '\n+ ').replace(' = ', '\n= ')));
+            card.append(calc);
+
+            const links = el('div', 'links');
+            if (r.menuUrl) links.append(link('Menu', r.menuUrl));
+            if (r.websiteUri) links.append(link('Website', r.websiteUri));
+            if (r.googleMapsUri) links.append(link('Google Maps', r.googleMapsUri));
+            card.append(links);
+            answerEl.append(card);
+        }
+
+        if (answer.skipped.length) {
+            answerEl.append(el('h2', null, 'Skipped restaurants (' + answer.skipped.length + ')'));
+            if (answer.skippedSummary) answerEl.append(el('p', 'intro', answer.skippedSummary));
+            const wrap = el('div', 'table-wrap');
+            const table = document.createElement('table');
+            const head = document.createElement('tr');
+            ['Restaurant', 'Step', 'Reason', 'Why'].forEach(h => head.append(el('th', null, h)));
+            table.append(head);
+            for (const s of answer.skipped) {
+                const tr = document.createElement('tr');
+                const name = el('td');
+                name.append(s.googleMapsUri ? link(s.name, s.googleMapsUri) : s.name);
+                if (s.websiteUri) { name.append(' · '); name.append(link('website', s.websiteUri)); }
+                const why = s.detail.split(' (checked: ')[0];
+                tr.append(name, el('td', null, STEP_NAMES[s.step] || s.step), el('td', null, s.reason),
+                    el('td', null, why));
+                table.append(tr);
+            }
+            wrap.append(table);
+            answerEl.append(wrap);
+        }
+        answerEl.scrollIntoView({behavior: 'smooth'});
+    }
+
+    goButton.onclick = async () => {
+        stepsEl.innerHTML = '';
+        answerEl.innerHTML = '';
+        for (const k of Object.keys(steps)) delete steps[k];
+        goButton.disabled = true;
+        statusEl.textContent = 'Starting…';
+        const res = await fetch('/api/runs', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: document.getElementById('message').value})
+        });
+        if (!res.ok) { statusEl.textContent = 'Error ' + res.status; goButton.disabled = false; return; }
+        const {runId, eventsUrl} = await res.json();
+        statusEl.textContent = 'Running… (run ' + runId + ')';
+
+        const source = new EventSource(eventsUrl);
+        source.addEventListener('agent-event', msg => {
+            const e = JSON.parse(msg.data);
+            addEvent(e);
+            if (e.step === 'RUN' && (e.status === 'COMPLETED' || e.status === 'FAILED')) source.close();
+        });
+        source.onerror = () => { source.close(); goButton.disabled = false; };
+    };
+</script>
+</body>
+</html>

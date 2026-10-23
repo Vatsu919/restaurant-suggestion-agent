@@ -1,0 +1,48 @@
+{
+  "places": [
+    {
+      "id": "place-green-leaf",
+      "displayName": { "text": "Green Leaf Café", "languageCode": "en" },
+      "formattedAddress": "Carrer de Verdi 1, Gràcia, 08012 Barcelona, Spain",
+      "websiteUri": "https://greenleaf.example/",
+      "googleMapsUri": "https://maps.google.com/?cid=111",
+      "rating": 4.6,
+      "userRatingCount": 1240,
+      "priceLevel": "PRICE_LEVEL_MODERATE",
+      "businessStatus": "OPERATIONAL",
+      "primaryType": "cafe",
+      "servesBreakfast": true,
+      "servesLunch": true,
+      "servesDinner": false,
+      "servesVegetarianFood": true,
+      "regularOpeningHours": {
+        "periods": [
+          { "open": { "day": 1, "hour": 8, "minute": 0 }, "close": { "day": 1, "hour": 16, "minute": 0 } }
+        ],
+        "weekdayDescriptions": [ "Monday: 8:00 AM – 4:00 PM" ]
+      },
+      "reviews": [
+        {
+          "name": "places/place-green-leaf/reviews/r1",
+          "relativePublishTimeDescription": "2 weeks ago",
+          "rating": 5,
+          "text": { "text": "Great vegan pancakes, friendly staff.", "languageCode": "en" },
+          "originalText": { "text": "Tortitas veganas buenísimas, personal muy amable.", "languageCode": "es" },
+          "authorAttribution": { "displayName": "Reviewer A", "uri": "https://example.com/a" },
+          "publishTime": "2026-10-09T09:15:00Z"
+        }
+      ]
+    },
+    {
+      "id": "place-no-website",
+      "displayName": { "text": "Bar Sin Web", "languageCode": "es" },
+      "formattedAddress": "Carrer Gran de Gràcia 50, 08012 Barcelona, Spain",
+      "googleMapsUri": "https://maps.google.com/?cid=222",
+      "rating": 4.2,
+      "userRatingCount": 310,
+      "businessStatus": "OPERATIONAL",
+      "primaryType": "bar"
+    }
+  ],
+  "nextPageToken": "token-page-2"
+}
